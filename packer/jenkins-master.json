@@ -1,0 +1,64 @@
+{
+  "variables": {
+    "jenkins_home_volume_id": ""
+  },
+  "builders": [
+    {
+      "type": "amazon-ebs",
+      "region": "eu-west-2",
+      "availability_zone": "eu-west-2a",
+      "source_ami": "ami-fcc4db98",
+      "instance_type": "t2.micro",
+      "ssh_username": "ubuntu",
+      "ami_name": "jenkins-master-{{timestamp}}",
+      "iam_instance_profile": "PackerRole",
+      "tags": {
+        "Name": "Jenkins Master"
+      }
+    }
+  ],
+  "provisioners": [
+    {
+      "type": "shell",
+      "inline": [
+        "wget -q -O - https://pkg.jenkins.io/debian/jenkins.io.key | sudo apt-key add -",
+        "sudo sh -c 'echo deb http://pkg.jenkins.io/debian-stable binary/ > /etc/apt/sources.list.d/jenkins.list'",
+        "sudo apt-get update",
+        "sudo apt-get install awscli jenkins=2.89.3 firewalld -y",
+        "sudo apt-get clean",
+        "sudo firewall-cmd --permanent --zone=external --change-interface=eth0",
+        "sudo firewall-cmd --permanent --zone=external --add-forward-port=port=443:proto=tcp:toport=8443",
+        "sudo service firewalld restart",
+        "sudo sed -i 's/HTTP_PORT=8080/HTTP_PORT=-1/' /etc/default/jenkins",
+        "sudo sed -i 's/JENKINS_ARGS.*/JENKINS_ARGS=\"--webroot=\\/var\\/cache\\/$NAME\\/war --httpPort=$HTTP_PORT --httpsPort=8443 --sessionTimeout=30\"/' /etc/default/jenkins",
+        "cat /etc/default/jenkins",
+        "aws ec2 attach-volume --device /dev/xvdf --volume-id {{user `jenkins_home_volume_id`}} --instance-id $(ec2metadata --instance-id) --region eu-west-2",
+        "sleep 5",
+        "lsblk",
+        "sudo file -s /dev/xvdf",
+        "sudo mount /dev/xvdf /var/lib/jenkins",
+        "sudo chown -R jenkins:jenkins /var/lib/jenkins",
+        "sudo chown -R root:root /var/lib/jenkins/lost+found",
+        "ls -l /var/lib | grep jenkins",
+        "ls -l /var/lib/jenkins",
+        "lsblk",
+        "df",
+        "sudo cp /etc/fstab /etc/fstab.orig",
+        "sudo sh -c \"echo '/dev/xvdf       /var/lib/jenkins        ext4    defaults,nofail 0 2' >> /etc/fstab\"",
+        "cat /etc/fstab"
+      ]
+    },
+    {
+      "type": "file",
+      "source": "./id_rsa_jenkins_gmail_np",
+      "destination": "/home/ubuntu/id_rsa_jenkins_gmail_np"
+    },
+    {
+      "type": "shell",
+      "inline": [
+        "sudo mv /home/ubuntu/id_rsa_jenkins_gmail_np /var/lib/jenkins/.ssh/id_rsa",
+        "sudo chown jenkins:jenkins /var/lib/jenkins/.ssh/id_rsa"
+      ]
+    }
+  ]
+}

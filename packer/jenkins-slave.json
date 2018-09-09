@@ -1,0 +1,95 @@
+{
+  "builders": [
+    {
+      "type": "amazon-ebs",
+      "region": "eu-west-2",
+      "availability_zone": "eu-west-2a",
+      "source_ami": "ami-fcc4db98",
+      "instance_type": "t2.micro",
+      "ssh_username": "ubuntu",
+      "ami_name": "jenkins-slave-{{timestamp}}",
+      "iam_instance_profile": "PackerRole",
+      "tags": {
+        "Name": "Jenkins Slave"
+      }
+    }
+  ],
+  "provisioners": [
+    {
+      "type": "file",
+      "source": "./gradle.properties",
+      "destination": "/home/ubuntu/gradle.properties"
+    },
+    {
+      "type": "file",
+      "source": "./id_rsa_jenkins_gmail_np.pub",
+      "destination": "/home/ubuntu/id_rsa_jenkins_gmail_np.pub"
+    },
+    {
+      "type": "file",
+      "source": "./jenkins-gmail.asc",
+      "destination": "/home/ubuntu/jenkins-gmail.asc"
+    },
+    {
+      "type": "file",
+      "source": "./passphrase.txt",
+      "destination": "/home/ubuntu/passphrase.txt"
+    },
+    {
+      "type": "file",
+      "source": "./settings.xml",
+      "destination": "/home/ubuntu/settings.xml"
+    },
+    {
+      "type": "shell",
+      "inline": [
+        "sudo apt-get update",
+        "sudo apt-get install apt-transport-https ca-certificates curl software-properties-common -y",
+        "curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -",
+        "sudo add-apt-repository \"deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable\"",
+
+        "sudo apt-get update",
+        "sudo apt-get install groovy python2.7 jq openjdk-8-jdk unzip docker-ce -y",
+        "sudo apt-get clean",
+
+        "wget https://releases.hashicorp.com/terraform/0.11.3/terraform_0.11.3_linux_amd64.zip",
+        "unzip terraform_0.11.3_linux_amd64.zip",
+        "sudo mv terraform /usr/local/bin/",
+        "rm terraform_0.11.3_linux_amd64.zip",
+
+        "sudo curl -O https://bootstrap.pypa.io/get-pip.py",
+        "sudo python2.7 get-pip.py",
+        "sudo pip install awscli",
+
+        "sudo groupadd -g 1001 jenkins",
+        "sudo useradd -d /home/jenkins -u 1001 -g 1001 -m -s /bin/bash jenkins",
+
+        "echo \"jenkins ALL=(ALL) NOPASSWD: ALL\" > jenkins-sudoer",
+        "chmod 440 jenkins-sudoer",
+        "sudo cp jenkins-sudoer /etc/sudoers.d/",
+
+        "sudo chown jenkins:jenkins jenkins-gmail.asc passphrase.txt settings.xml gradle.properties id_rsa_jenkins_gmail_np.pub",
+
+        "sudo mv jenkins-gmail.asc passphrase.txt /home/jenkins/",
+        "sudo su - jenkins -c 'mkdir .gnupg'",
+        "sudo chmod 0700 /home/jenkins/.gnupg",
+        "sudo su - jenkins -c 'echo allow-loopback-pinentry > .gnupg/gpg-agent.conf'",
+        "sudo su - jenkins -c 'gpg --no-tty --passphrase-file passphrase.txt --import jenkins-gmail.asc'",
+        "sudo su - jenkins -c 'rm jenkins-gmail.asc passphrase.txt'",
+
+        "sudo su - jenkins -c 'mkdir .m2'",
+        "sudo mv settings.xml /home/jenkins/.m2",
+
+        "sudo su - jenkins -c 'mkdir .gradle'",
+        "sudo mv gradle.properties /home/jenkins/.gradle/",
+
+        "sudo su - jenkins -c 'mkdir .ssh'",
+        "sudo chmod 0700 -R /home/jenkins/.ssh",
+        "sudo mv id_rsa_jenkins_gmail_np.pub /home/jenkins/.ssh/authorized_keys",
+
+        "sudo su - jenkins -c 'git config --global user.email \"jenkins.ci.build@gmail.com\"'",
+        "sudo su - jenkins -c 'git config --global user.name \"Jenkins\"'"
+      ]
+    }
+  ]
+}
