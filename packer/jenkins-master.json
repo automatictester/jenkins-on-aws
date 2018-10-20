@@ -10,8 +10,8 @@
       "source_ami": "ami-fcc4db98",
       "instance_type": "t2.micro",
       "ssh_username": "ubuntu",
-      "ami_name": "jenkins-master-{{timestamp}}",
-      "iam_instance_profile": "PackerRole",
+      "ami_name": "jenkins-master-{{isotime \"2006-01-02\"}}",
+      "iam_instance_profile": "Packer",
       "tags": {
         "Name": "Jenkins Master"
       }
@@ -33,9 +33,12 @@
         "sudo sed -i 's/JENKINS_ARGS.*/JENKINS_ARGS=\"--webroot=\\/var\\/cache\\/$NAME\\/war --httpPort=$HTTP_PORT --httpsPort=8443 --sessionTimeout=30\"/' /etc/default/jenkins",
         "cat /etc/default/jenkins",
         "aws ec2 attach-volume --device /dev/xvdf --volume-id {{user `jenkins_home_volume_id`}} --instance-id $(ec2metadata --instance-id) --region eu-west-2",
+        "aws ec2 wait volume-in-use --volume-ids {{user `jenkins_home_volume_id`}} --region eu-west-2",
         "sleep 5",
         "lsblk",
-        "sudo file -s /dev/xvdf",
+        "FILE_OUTPUT=$(sudo file -s /dev/xvdf)",
+        "echo ${FILE_OUTPUT}",
+        "if [ \"$FILE_OUTPUT\" = \"/dev/xvdf: data\" ]; then sudo mkfs -t ext4 /dev/xvdf; fi",
         "sudo mount /dev/xvdf /var/lib/jenkins",
         "sudo chown -R jenkins:jenkins /var/lib/jenkins",
         "sudo chown -R root:root /var/lib/jenkins/lost+found",
@@ -56,8 +59,9 @@
     {
       "type": "shell",
       "inline": [
+        "sudo mkdir -p /var/lib/jenkins/.ssh",
         "sudo mv /home/ubuntu/id_rsa_jenkins_gmail_np /var/lib/jenkins/.ssh/id_rsa",
-        "sudo chown jenkins:jenkins /var/lib/jenkins/.ssh/id_rsa"
+        "sudo chown -R jenkins:jenkins /var/lib/jenkins/"
       ]
     }
   ]

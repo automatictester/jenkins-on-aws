@@ -1,2 +1,7 @@
 .idea/
 vars.sh
+*/gradle.properties
+*/id_rsa*
+*/*.asc
+*/passphrase.txt
+*/settings.xml

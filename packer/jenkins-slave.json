@@ -5,10 +5,10 @@
       "region": "eu-west-2",
       "availability_zone": "eu-west-2a",
       "source_ami": "ami-fcc4db98",
-      "instance_type": "t2.micro",
+      "instance_type": "t3.small",
       "ssh_username": "ubuntu",
-      "ami_name": "jenkins-slave-{{timestamp}}",
-      "iam_instance_profile": "PackerRole",
+      "ami_name": "jenkins-slave-{{isotime \"2006-01-02\"}}",
+      "iam_instance_profile": "Packer",
       "tags": {
         "Name": "Jenkins Slave"
       }
