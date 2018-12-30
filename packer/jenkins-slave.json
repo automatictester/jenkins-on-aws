@@ -4,7 +4,7 @@
       "type": "amazon-ebs",
       "region": "eu-west-2",
       "availability_zone": "eu-west-2a",
-      "source_ami": "ami-fcc4db98",
+      "source_ami": "ami-0b0a60c0a2bd40612",
       "instance_type": "t3.medium",
       "ssh_username": "ubuntu",
       "ami_name": "jenkins-slave-{{isotime \"2006-01-02\"}}",
@@ -16,31 +16,6 @@
   ],
   "provisioners": [
     {
-      "type": "file",
-      "source": "./gradle.properties",
-      "destination": "/home/ubuntu/gradle.properties"
-    },
-    {
-      "type": "file",
-      "source": "./id_rsa_jenkins_gmail_np.pub",
-      "destination": "/home/ubuntu/id_rsa_jenkins_gmail_np.pub"
-    },
-    {
-      "type": "file",
-      "source": "./jenkins-gmail.asc",
-      "destination": "/home/ubuntu/jenkins-gmail.asc"
-    },
-    {
-      "type": "file",
-      "source": "./passphrase.txt",
-      "destination": "/home/ubuntu/passphrase.txt"
-    },
-    {
-      "type": "file",
-      "source": "./settings.xml",
-      "destination": "/home/ubuntu/settings.xml"
-    },
-    {
       "type": "shell",
       "inline": [
         "sudo apt-get update",
@@ -50,6 +25,7 @@
 
         "sudo apt-get update",
         "sudo apt-get install groovy python2.7 jq openjdk-8-jdk unzip docker-ce -y",
+        "sudo apt-get remove openjdk-11-jre-headless -y",
         "sudo apt-get clean",
 
         "wget https://releases.hashicorp.com/terraform/0.11.3/terraform_0.11.3_linux_amd64.zip",
@@ -60,6 +36,12 @@
         "sudo curl -O https://bootstrap.pypa.io/get-pip.py",
         "sudo python2.7 get-pip.py",
         "sudo pip install awscli",
+
+        "aws s3 cp s3://automatictester.co.uk-jenkins-config-files/gradle.properties /home/ubuntu/gradle.properties",
+        "aws s3 cp s3://automatictester.co.uk-jenkins-config-files/id_rsa_jenkins_gmail_np.pub /home/ubuntu/id_rsa_jenkins_gmail_np.pub",
+        "aws s3 cp s3://automatictester.co.uk-jenkins-config-files/jenkins-gmail.asc /home/ubuntu/jenkins-gmail.asc",
+        "aws s3 cp s3://automatictester.co.uk-jenkins-config-files/passphrase.txt /home/ubuntu/passphrase.txt",
+        "aws s3 cp s3://automatictester.co.uk-jenkins-config-files/settings.xml /home/ubuntu/settings.xml",
 
         "sudo groupadd -g 1001 jenkins",
         "sudo useradd -d /home/jenkins -u 1001 -g 1001 -m -s /bin/bash jenkins",
@@ -74,7 +56,7 @@
         "sudo su - jenkins -c 'mkdir .gnupg'",
         "sudo chmod 0700 /home/jenkins/.gnupg",
         "sudo su - jenkins -c 'echo allow-loopback-pinentry > .gnupg/gpg-agent.conf'",
-        "sudo su - jenkins -c 'gpg --no-tty --passphrase-file passphrase.txt --import jenkins-gmail.asc'",
+        "sudo su - jenkins -c 'gpg --no-tty --batch --yes --passphrase-file passphrase.txt --import jenkins-gmail.asc'",
         "sudo su - jenkins -c 'rm jenkins-gmail.asc passphrase.txt'",
 
         "sudo su - jenkins -c 'mkdir .m2'",
