@@ -27,6 +27,7 @@
         "sudo apt-get install groovy python2.7 jq openjdk-8-jdk unzip docker-ce -y",
         "sudo apt-get remove openjdk-11-jre-headless -y",
         "sudo apt-get clean",
+        "sudo ln -s /usr/lib/jvm/java-8-openjdk-amd64 /usr/lib/jvm/default-java",
 
         "wget https://releases.hashicorp.com/terraform/0.11.3/terraform_0.11.3_linux_amd64.zip",
         "unzip terraform_0.11.3_linux_amd64.zip",
