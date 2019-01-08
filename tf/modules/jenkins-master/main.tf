@@ -1,5 +1,5 @@
 resource "aws_iam_role" "jenkins_master_role" {
-  name                 = "JenkinsMaster"
+  name                 = "Jenkins"
   assume_role_policy   = "${file("iam-policy/assume-role-policy.json")}"
 }
 
@@ -66,6 +66,6 @@ resource "aws_iam_role_policy_attachment" "manage_ec2_slaves_policy_attachment" 
 }
 
 resource "aws_iam_instance_profile" "jenkins_master_instance_profile" {
-  name                 = "JenkinsMaster"
+  name                 = "Jenkins"
   role                 = "${aws_iam_role.jenkins_master_role.name}"
 }
