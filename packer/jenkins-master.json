@@ -7,7 +7,7 @@
       "type": "amazon-ebs",
       "region": "eu-west-2",
       "availability_zone": "eu-west-2a",
-      "source_ami": "ami-fcc4db98",
+      "source_ami": "ami-0b0a60c0a2bd40612",
       "instance_type": "t2.micro",
       "ssh_username": "ubuntu",
       "ami_name": "jenkins-master-{{isotime \"2006-01-02\"}}",
@@ -24,7 +24,7 @@
         "wget -q -O - https://pkg.jenkins.io/debian/jenkins.io.key | sudo apt-key add -",
         "sudo sh -c 'echo deb http://pkg.jenkins.io/debian-stable binary/ > /etc/apt/sources.list.d/jenkins.list'",
         "sudo apt-get update",
-        "sudo apt-get install openjdk-8-jre-headless -y",
+        "sudo apt-get install openjdk-8-jdk -y",
         "sudo apt-get install awscli jenkins=2.150.1 firewalld -y",
         "sudo apt-get clean",
         "sudo firewall-cmd --permanent --zone=external --change-interface=eth0",
@@ -49,17 +49,8 @@
         "df",
         "sudo cp /etc/fstab /etc/fstab.orig",
         "sudo sh -c \"echo '/dev/xvdf       /var/lib/jenkins        ext4    defaults,nofail 0 2' >> /etc/fstab\"",
-        "cat /etc/fstab"
-      ]
-    },
-    {
-      "type": "file",
-      "source": "./id_rsa_jenkins_gmail_np",
-      "destination": "/home/ubuntu/id_rsa_jenkins_gmail_np"
-    },
-    {
-      "type": "shell",
-      "inline": [
+        "cat /etc/fstab",
+        "aws s3 cp s3://automatictester.co.uk-jenkins-config-files/id_rsa_jenkins_gmail_np /home/ubuntu/id_rsa_jenkins_gmail_np",
         "sudo mkdir -p /var/lib/jenkins/.ssh",
         "sudo mv /home/ubuntu/id_rsa_jenkins_gmail_np /var/lib/jenkins/.ssh/id_rsa",
         "sudo chown -R jenkins:jenkins /var/lib/jenkins/"
