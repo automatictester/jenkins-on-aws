@@ -18,3 +18,7 @@ module "jenkins_master" {
 module "jenkins_slave" {
   source   = "./modules/jenkins-slave"
 }
+
+module "packer" {
+  source   = "./modules/packer"
+}

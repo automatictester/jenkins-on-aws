@@ -12,7 +12,6 @@ provider "aws" {
 
 resource "aws_iam_role" "packer_role" {
   name                 = "Packer"
-  description          = "Allow Packer to do its job"
   assume_role_policy   = "${file("iam-policy/assume-role-policy.json")}"
 }
 
