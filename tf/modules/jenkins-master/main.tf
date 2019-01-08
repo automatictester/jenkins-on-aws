@@ -12,7 +12,10 @@ resource "aws_iam_policy" "pass_role_policy" {
     "Statement": [
         {
             "Effect": "Allow",
-            "Action": "iam:PassRole",
+            "Action": [
+                "iam:ListInstanceProfilesForRole",
+                "iam:PassRole"
+            ],
             "Resource": "*"
         }
     ]
