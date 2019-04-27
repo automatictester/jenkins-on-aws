@@ -58,6 +58,7 @@
         "sudo chmod 0700 /home/jenkins/.gnupg",
         "sudo su - jenkins -c 'echo allow-loopback-pinentry > .gnupg/gpg-agent.conf'",
         "sudo su - jenkins -c 'gpg --no-tty --batch --yes --passphrase-file passphrase.txt --import jenkins-gmail.asc'",
+        "sudo su - jenkins -c 'gpg --no-tty --pinentry-mode loopback --yes --passphrase-file passphrase.txt --export-secret-keys >~/.gnupg/secring.gpg'",
         "sudo su - jenkins -c 'rm jenkins-gmail.asc passphrase.txt'",
 
         "sudo su - jenkins -c 'mkdir .m2'",
