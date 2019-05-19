@@ -1,12 +1,16 @@
 {
   "variables": {
-    "jenkins_home_volume_id": ""
+    "jenkins_home_volume_id": "",
+    "jenkins_vpc_id": "",
+    "jenkins_subnet_id": ""
   },
   "builders": [
     {
       "type": "amazon-ebs",
       "region": "eu-west-2",
+      "vpc_id": "{{user `jenkins_vpc_id`}}",
       "availability_zone": "eu-west-2a",
+      "subnet_id": "{{user `jenkins_subnet_id`}}",
       "source_ami": "ami-0b0a60c0a2bd40612",
       "instance_type": "t2.micro",
       "ssh_username": "ubuntu",
@@ -23,7 +27,7 @@
       "inline": [
         "wget -q -O - https://pkg.jenkins.io/debian/jenkins.io.key | sudo apt-key add -",
         "sudo sh -c 'echo deb http://pkg.jenkins.io/debian-stable binary/ > /etc/apt/sources.list.d/jenkins.list'",
-        "sudo apt-get update",
+        "sudo apt-get update -y",
         "sudo apt-get install openjdk-8-jdk -y",
         "sudo apt-get install awscli jenkins=2.150.1 firewalld -y",
         "sudo apt-get clean",
