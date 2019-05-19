@@ -11,6 +11,10 @@ provider "aws" {
 }
 
 
+module "basic_networking" {
+  source   = "./modules/basic-networking"
+}
+
 module "jenkins_master" {
   source   = "./modules/jenkins-master"
 }
