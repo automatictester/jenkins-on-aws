@@ -32,10 +32,16 @@ resource "aws_subnet" "jenkins-vpc-subnet" {
   vpc_id = "${aws_vpc.jenkins-vpc.id}"
   cidr_block = "10.0.0.0/20"
   availability_zone = "eu-west-2a"
+  map_public_ip_on_launch = true
 
   tags {
     Name = "Jenkins Subnet"
   }
+}
+
+resource "aws_route_table_association" "rt-association" {
+  subnet_id      = "${aws_subnet.jenkins-vpc-subnet.id}"
+  route_table_id = "${aws_route_table.jenkins-vpc-rt.id}"
 }
 
 resource "aws_security_group" "jenkins_farm" {
