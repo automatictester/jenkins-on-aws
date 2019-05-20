@@ -34,6 +34,7 @@ echo "JENKINS_HOME Volume ID: ${JENKINS_HOME_VOLUME_ID}"
 echo "Jenkins VPC ID: ${JENKINS_VPC_ID}"
 echo "Jenkins Subnet ID: ${JENKINS_SUBNET_ID}"
 echo "Old Jenkins Master AMI ID: ${JENKINS_MASTER_AMI_ID}"
+echo "Old Jenkins Master Instance ID: ${JENKINS_MASTER_INSTANCE_ID}"
 
 echo -n "Renaming AMI 'Jenkins Master' to 'OLD Jenkins Master'... "
 aws ec2 create-tags --resources ${JENKINS_MASTER_AMI_ID} --tags Key=Name,Value='OLD Jenkins Master'
