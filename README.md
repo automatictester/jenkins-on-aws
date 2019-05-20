@@ -3,8 +3,8 @@
 ## Overview
 
 Jenkins Master and Slave on AWS EC2:
-- Packer templates
-- Terraformed IAM config
+- Packer AMI templates
+- Terraformed AWS infrastructure
 - Lifecycle management scripts
 
 Feel free to adapt and reuse.
