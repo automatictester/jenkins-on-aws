@@ -7,7 +7,7 @@
       "source_ami": "ami-0b0a60c0a2bd40612",
       "instance_type": "t3.medium",
       "ssh_username": "ubuntu",
-      "ami_name": "jenkins-slave-{{isotime \"2006-01-02\"}}",
+      "ami_name": "jenkins-slave-{{isotime \"2006-01-02-15-04-05\"}}",
       "iam_instance_profile": "Packer",
       "tags": {
         "Name": "Jenkins Slave"
