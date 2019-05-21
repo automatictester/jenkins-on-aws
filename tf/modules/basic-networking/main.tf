@@ -1,3 +1,5 @@
+variable "public_ip" {}
+
 resource "aws_vpc" "jenkins-vpc" {
   cidr_block = "10.0.0.0/16"
   enable_dns_hostnames = true
@@ -87,7 +89,7 @@ resource "aws_security_group_rule" "allow_ingress_ssh" {
   to_port = 22
   protocol = "tcp"
   cidr_blocks = [
-    "37.120.156.143/32"
+    "${var.public_ip}/32"
   ]
 }
 
@@ -98,7 +100,7 @@ resource "aws_security_group_rule" "allow_ingress_https" {
   to_port = 443
   protocol = "tcp"
   cidr_blocks = [
-    "37.120.156.143/32"
+    "${var.public_ip}/32"
   ]
 }
 

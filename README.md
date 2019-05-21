@@ -12,6 +12,7 @@ Feel free to adapt and reuse.
 ## How-to
 
 Prepare AWS infrastructure (one-off):
+- `export_public_ip.sh`
 - `terraform apply -auto-approve`
 
 Create empty JENKINS_HOME volume (one-off):
