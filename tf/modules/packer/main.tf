@@ -1,15 +1,3 @@
-terraform {
-  backend "s3" {
-    bucket             = "automatictester.co.uk-packer-state"
-    key                = "packer.tfstate"
-    region             = "eu-west-2"
-  }
-}
-
-provider "aws" {
-  region               = "eu-west-2"
-}
-
 resource "aws_iam_role" "packer_role" {
   name                 = "Packer"
   assume_role_policy   = "${file("iam-policy/assume-role-policy.json")}"
