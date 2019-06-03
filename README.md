@@ -38,5 +38,4 @@ Backup JENKINS_HOME:
 - `./create-jenkins-home-snapshot.sh`
 
 - Shell scripts to create necessary S3 buckets (one-off):
-- `./automatictester.co.uk-jenkins-config-files.sh`
 - `./automatictester.co.uk-jenkins-state.sh`
