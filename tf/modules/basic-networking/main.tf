@@ -1,5 +1,3 @@
-variable "public_ip" {}
-
 resource "aws_vpc" "jenkins-vpc" {
   cidr_block = "10.0.0.0/16"
   enable_dns_hostnames = true
@@ -74,7 +72,7 @@ resource "aws_security_group" "jenkins_farm" {
 
 resource "aws_security_group" "jenkins_master" {
   name = "Jenkins Master"
-  description = "SSH and Jenkins HTTPS from my public IP only"
+  description = "SSH and HTTPS access"
   vpc_id = "${aws_vpc.jenkins-vpc.id}"
 
   tags {
@@ -89,7 +87,7 @@ resource "aws_security_group_rule" "allow_ingress_ssh" {
   to_port = 22
   protocol = "tcp"
   cidr_blocks = [
-    "${var.public_ip}/32"
+    "0.0.0.0/0"
   ]
 }
 
@@ -100,7 +98,7 @@ resource "aws_security_group_rule" "allow_ingress_https" {
   to_port = 443
   protocol = "tcp"
   cidr_blocks = [
-    "${var.public_ip}/32"
+    "0.0.0.0/0"
   ]
 }
 

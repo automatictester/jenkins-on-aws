@@ -10,11 +10,8 @@ provider "aws" {
   region    = "eu-west-2"
 }
 
-variable "public_ip" {}
-
 module "basic_networking" {
   source    = "./modules/basic-networking"
-  public_ip = "${var.public_ip}"
 }
 
 module "jenkins_master" {
