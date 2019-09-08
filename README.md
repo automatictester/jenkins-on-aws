@@ -28,12 +28,6 @@ Build Jenkins Master AMI:
 Launch new Jenkins Master:
 - `./launch-master.sh`
 
-Stop Jenkins Master (and Slave, if any):
-- `./jenkins-stop.sh`
-
-Start Jenkins Master:
-- `./jenkins-start.sh`
-
 Backup JENKINS_HOME:
 - `./create-jenkins-home-snapshot.sh`
 
