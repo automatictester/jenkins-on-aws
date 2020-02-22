@@ -1,8 +1,10 @@
 {
   "variables": {
-    "jenkins_home_volume_id": "",
+    "efs_filesystem_id": "",
     "jenkins_vpc_id": "",
-    "jenkins_subnet_id": ""
+    "jenkins_subnet_id": "",
+    "jenkins_master_sg_id": "",
+    "jenkins_farm_sg_id": ""
   },
   "builders": [
     {
@@ -15,6 +17,10 @@
       "instance_type": "t2.micro",
       "ssh_username": "ubuntu",
       "ami_name": "jenkins-master-{{isotime \"2006-01-02-15-04-05\"}}",
+      "security_group_ids" : [
+        "{{user `jenkins_master_sg_id`}}",
+        "{{user `jenkins_farm_sg_id`}}"
+      ],
       "iam_instance_profile": "Packer",
       "tags": {
         "Name": "Jenkins Master"
@@ -25,11 +31,16 @@
     {
       "type": "shell",
       "inline": [
+        "set -x",
         "wget -q -O - https://pkg.jenkins.io/debian/jenkins.io.key | sudo apt-key add -",
         "sudo sh -c 'echo deb http://pkg.jenkins.io/debian-stable binary/ > /etc/apt/sources.list.d/jenkins.list'",
         "sudo apt-get update -y",
-        "sudo apt-get install openjdk-8-jdk -y",
-        "sudo apt-get install awscli jenkins=2.150.1 firewalld -y",
+        "sudo apt-get install openjdk-8-jdk --no-install-recommends -y",
+        "sudo apt-get install awscli jenkins=2.150.1 firewalld binutils -y",
+        "git clone https://github.com/aws/efs-utils",
+        "(cd efs-utils; ./build-deb.sh)",
+        "(cd efs-utils; sudo DEBIAN_FRONTEND=noninteractive apt-get -y install ./build/amazon-efs-utils*deb)",
+        "rm -rf efs-utils",
         "sudo apt-get clean",
         "sudo firewall-cmd --permanent --zone=external --change-interface=eth0",
         "sudo firewall-cmd --permanent --zone=external --add-forward-port=port=443:proto=tcp:toport=8443",
@@ -37,23 +48,10 @@
         "sudo sed -i 's/HTTP_PORT=8080/HTTP_PORT=-1/' /etc/default/jenkins",
         "sudo sed -i 's/JENKINS_ARGS.*/JENKINS_ARGS=\"--webroot=\\/var\\/cache\\/$NAME\\/war --httpPort=$HTTP_PORT --httpsPort=8443 --sessionTimeout=30 --httpKeepAliveTimeout=60000 --httpsKeepAliveTimeout=60000\"/' /etc/default/jenkins",
         "cat /etc/default/jenkins",
-        "aws ec2 attach-volume --device /dev/xvdf --volume-id {{user `jenkins_home_volume_id`}} --instance-id $(ec2metadata --instance-id) --region eu-west-2",
-        "aws ec2 wait volume-in-use --volume-ids {{user `jenkins_home_volume_id`}} --region eu-west-2",
-        "sleep 10",
-        "lsblk",
-        "FILE_OUTPUT=$(sudo file -s /dev/xvdf)",
-        "echo ${FILE_OUTPUT}",
-        "if [ \"$FILE_OUTPUT\" = \"/dev/xvdf: data\" ]; then sudo mkfs -t ext4 /dev/xvdf; fi",
-        "sudo mount /dev/xvdf /var/lib/jenkins",
-        "sudo chown -R jenkins:jenkins /var/lib/jenkins",
-        "sudo chown -R root:root /var/lib/jenkins/lost+found",
+        "sudo mount -t efs {{user `efs_filesystem_id`}}:/ /var/lib/jenkins",
         "ls -l /var/lib | grep jenkins",
         "ls -l /var/lib/jenkins",
-        "lsblk",
-        "df",
-        "sudo cp /etc/fstab /etc/fstab.orig",
-        "sudo sh -c \"echo '/dev/xvdf       /var/lib/jenkins        ext4    defaults,nofail 0 2' >> /etc/fstab\"",
-        "cat /etc/fstab",
+        "sudo sh -c \"echo '{{user `efs_filesystem_id`}}:/ /var/lib/jenkins efs defaults,_netdev,nofail 0 0' >> /etc/fstab\"",
         "aws s3 cp s3://automatictester.co.uk-jenkins-config-files/id_rsa_jenkins_gmail_np /home/ubuntu/id_rsa_jenkins_gmail_np",
         "sudo mkdir -p /var/lib/jenkins/.ssh",
         "sudo mv /home/ubuntu/id_rsa_jenkins_gmail_np /var/lib/jenkins/.ssh/id_rsa",

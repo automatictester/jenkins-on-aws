@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
 
-JENKINS_HOME_VOLUME_ID=$(aws ec2 describe-volumes \
-    --filters 'Name=tag:Name,Values=JENKINS_HOME' \
-    --query 'Volumes[0].VolumeId' \
+EFS_FILESYSTEM_ID=$(aws efs describe-file-systems \
+    --query 'FileSystems[?Name == `Jenkins Home`].FileSystemId' \
     --output text
 )
 
@@ -18,34 +17,22 @@ JENKINS_SUBNET_ID=$(aws ec2 describe-subnets \
     --output text
 )
 
-JENKINS_MASTER_AMI_ID=$(aws ec2 describe-images \
-    --filters Name=tag:Name,Values='Jenkins Master' \
-    --query 'Images[0].ImageId' \
+JENKINS_MASTER_SG_ID=$(aws ec2 describe-security-groups \
+    --filters 'Name=tag:Name,Values=Jenkins Master' \
+    --query 'SecurityGroups[0].GroupId' \
     --output text
 )
 
-JENKINS_MASTER_INSTANCE_ID=$(aws ec2 describe-instances \
-    --filters 'Name=tag:Name,Values=Jenkins Master' 'Name=instance-state-name,Values=stopped' \
-    --query 'Reservations[*].Instances[*].InstanceId' \
+JENKINS_FARM_SG_ID=$(aws ec2 describe-security-groups \
+    --filters 'Name=tag:Name,Values=Jenkins Farm' \
+    --query 'SecurityGroups[0].GroupId' \
     --output text
 )
-
-echo "JENKINS_HOME Volume ID: ${JENKINS_HOME_VOLUME_ID}"
-echo "Jenkins VPC ID: ${JENKINS_VPC_ID}"
-echo "Jenkins Subnet ID: ${JENKINS_SUBNET_ID}"
-echo "Old Jenkins Master AMI ID: ${JENKINS_MASTER_AMI_ID}"
-echo "Old Jenkins Master Instance ID: ${JENKINS_MASTER_INSTANCE_ID}"
-
-echo -n "Renaming AMI 'Jenkins Master' to 'OLD Jenkins Master'... "
-aws ec2 create-tags --resources ${JENKINS_MASTER_AMI_ID} --tags Key=Name,Value='OLD Jenkins Master'
-echo "done!"
-
-echo -n "Renaming instance 'Jenkins Master' to 'OLD Jenkins Master'... "
-aws ec2 create-tags --resources ${JENKINS_MASTER_INSTANCE_ID} --tags Key=Name,Value='OLD Jenkins Master'
-echo "done!"
 
 packer build \
-    -var "jenkins_home_volume_id=${JENKINS_HOME_VOLUME_ID}" \
+    -var "efs_filesystem_id=${EFS_FILESYSTEM_ID}" \
     -var "jenkins_vpc_id=${JENKINS_VPC_ID}" \
     -var "jenkins_subnet_id=${JENKINS_SUBNET_ID}" \
+    -var "jenkins_master_sg_id=${JENKINS_MASTER_SG_ID}" \
+    -var "jenkins_farm_sg_id=${JENKINS_FARM_SG_ID}" \
     ../packer/jenkins-master.json
