@@ -112,3 +112,44 @@ resource "aws_security_group_rule" "allow_egress_allow_all" {
     "0.0.0.0/0"
   ]
 }
+
+resource "aws_efs_file_system" "jenkins_home" {
+  performance_mode = "generalPurpose"
+  throughput_mode = "bursting"
+
+  lifecycle_policy {
+    transition_to_ia = "AFTER_14_DAYS"
+  }
+
+  tags = {
+    Name = "Jenkins Home"
+  }
+}
+
+resource "aws_efs_mount_target" "jenkins_home" {
+  file_system_id = "${aws_efs_file_system.jenkins_home.id}"
+  subnet_id = "${aws_subnet.jenkins-vpc-subnet.id}"
+
+  security_groups = [
+    "${aws_security_group.efs.id}"
+  ]
+}
+
+resource "aws_security_group" "efs" {
+  name = "EFS access"
+  description = "Allow EFS access"
+  vpc_id = "${aws_vpc.jenkins-vpc.id}"
+
+  tags {
+    Name = "EFS access"
+  }
+}
+
+resource "aws_security_group_rule" "allow_ingress_efs" {
+  security_group_id = "${aws_security_group.efs.id}"
+  type = "ingress"
+  from_port = 2049
+  to_port = 2049
+  protocol = "tcp"
+  source_security_group_id = "${aws_security_group.jenkins_master.id}"
+}
