@@ -2,10 +2,9 @@
 
 ## Overview
 
-Jenkins Master and Slave on AWS EC2:
-- Packer AMI templates
+Jenkins master and slaves on AWS EC2:
 - Terraformed AWS infrastructure
-- Lifecycle management scripts
+- Packer AMI templates
 
 Feel free to adapt and reuse.
 
@@ -17,18 +16,8 @@ Shell scripts to create necessary S3 buckets (one-off):
 Prepare AWS infrastructure (one-off):
 - `terraform apply -auto-approve`
 
-Create empty JENKINS_HOME volume (one-off):
-- `./create-empty-jenkins-home-volume.sh`
-
 Build Jenkins Slave AMI:
 - `./packer-slave.sh`
 
 Build Jenkins Master AMI:
-- `./detach-jenkins-home-volume.sh`
 - `./packer-master.sh`
-
-Launch new Jenkins Master:
-- `./launch-master.sh`
-
-Backup JENKINS_HOME:
-- `./create-jenkins-home-snapshot.sh`
