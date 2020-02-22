@@ -11,8 +11,10 @@ Feel free to adapt and reuse.
 
 ## How-to
 
+Shell scripts to create necessary S3 buckets (one-off):
+- `./automatictester.co.uk-jenkins-state.sh`
+
 Prepare AWS infrastructure (one-off):
-- `export TF_VAR_public_ip=$(dig +short myip.opendns.com @resolver1.opendns.com)`
 - `terraform apply -auto-approve`
 
 Create empty JENKINS_HOME volume (one-off):
@@ -30,6 +32,3 @@ Launch new Jenkins Master:
 
 Backup JENKINS_HOME:
 - `./create-jenkins-home-snapshot.sh`
-
-Shell scripts to create necessary S3 buckets (one-off):
-- `./automatictester.co.uk-jenkins-state.sh`
