@@ -19,12 +19,12 @@
       "type": "shell",
       "inline": [
         "sudo apt-get update",
-        "sudo apt-get install apt-transport-https ca-certificates curl software-properties-common -y",
+        "sudo DEBIAN_FRONTEND=noninteractive apt-get install apt-transport-https ca-certificates curl software-properties-common -y",
         "curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -",
         "sudo add-apt-repository \"deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable\"",
 
         "sudo apt-get update",
-        "sudo apt-get install groovy python2.7 jq openjdk-8-jdk unzip docker-ce -y",
+        "sudo DEBIAN_FRONTEND=noninteractive apt-get install groovy python2.7 jq openjdk-8-jdk unzip docker-ce -y",
         "sudo apt-get remove openjdk-11-jre-headless -y",
         "sudo apt-get clean",
         "sudo ln -s /usr/lib/jvm/java-8-openjdk-amd64 /usr/lib/jvm/default-java",
