@@ -1,6 +1,6 @@
 resource "aws_iam_role" "packer_role" {
   name                 = "Packer"
-  assume_role_policy   = "${file("iam-policy/assume-role-policy.json")}"
+  assume_role_policy   = file("iam-policy/assume-role-policy.json")
 }
 
 resource "aws_iam_policy" "s3_get_jenkins_config_files_policy" {
@@ -45,16 +45,16 @@ EOF
 }
 
 resource "aws_iam_role_policy_attachment" "s3_get_config_files_policy_attachment" {
-  role                 = "${aws_iam_role.packer_role.name}"
-  policy_arn           = "${aws_iam_policy.s3_get_jenkins_config_files_policy.arn}"
+  role                 = aws_iam_role.packer_role.name
+  policy_arn           = aws_iam_policy.s3_get_jenkins_config_files_policy.arn
 }
 
 resource "aws_iam_role_policy_attachment" "ec2_attach_detach_volume_policy_attachment" {
-  role                 = "${aws_iam_role.packer_role.name}"
-  policy_arn           = "${aws_iam_policy.ec2_attach_detach_volume_policy.arn}"
+  role                 = aws_iam_role.packer_role.name
+  policy_arn           = aws_iam_policy.ec2_attach_detach_volume_policy.arn
 }
 
 resource "aws_iam_instance_profile" "packer_instance_profile" {
   name                 = "Packer"
-  role                 = "${aws_iam_role.packer_role.name}"
+  role                 = aws_iam_role.packer_role.name
 }

@@ -1,6 +1,6 @@
 resource "aws_iam_role" "jenkins_master_role" {
   name                 = "Jenkins"
-  assume_role_policy   = "${file("iam-policy/assume-role-policy.json")}"
+  assume_role_policy   = file("iam-policy/assume-role-policy.json")
 }
 
 resource "aws_iam_policy" "pass_role_policy" {
@@ -56,16 +56,16 @@ EOF
 }
 
 resource "aws_iam_role_policy_attachment" "pass_role_policy_attachment" {
-  role                 = "${aws_iam_role.jenkins_master_role.name}"
-  policy_arn           = "${aws_iam_policy.pass_role_policy.arn}"
+  role                 = aws_iam_role.jenkins_master_role.name
+  policy_arn           = aws_iam_policy.pass_role_policy.arn
 }
 
 resource "aws_iam_role_policy_attachment" "manage_ec2_slaves_policy_attachment" {
-  role                 = "${aws_iam_role.jenkins_master_role.name}"
-  policy_arn           = "${aws_iam_policy.jenkins_master_manage_ec2_slaves_policy.arn}"
+  role                 = aws_iam_role.jenkins_master_role.name
+  policy_arn           = aws_iam_policy.jenkins_master_manage_ec2_slaves_policy.arn
 }
 
 resource "aws_iam_instance_profile" "jenkins_master_instance_profile" {
   name                 = "Jenkins"
-  role                 = "${aws_iam_role.jenkins_master_role.name}"
+  role                 = aws_iam_role.jenkins_master_role.name
 }

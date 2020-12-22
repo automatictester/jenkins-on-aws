@@ -5,3 +5,4 @@
 */passphrase.txt
 */settings.xml
 .terraform/
+vars.sh
